@@ -25,7 +25,7 @@ from time import time, sleep
 from os import listdir
 
 # Imports classifier function for using CNN to classify images 
-from classifier import classifier 
+from classifier import classifier
 
 # Imports print functions that check the lab
 from print_functions_for_lab_checks import *
@@ -36,7 +36,7 @@ def main():
     # DONE: 1. Define start_time to measure total program runtime by
     # collecting start time
     start_time = time()
-    
+
     # DONE: 2. Define get_input_args() function to create & retrieve command
     # line arguments
     in_arg = get_input_args()
@@ -47,7 +47,7 @@ def main():
     check_command_line_arguments(in_arg)
     print()
     print()
-    
+
     # DONE: 3. Define get_pet_labels() function to create pet image labels by
     # creating a dictionary with key=filename and value=file label to be used
     # to check the accuracy of the classifier function
@@ -63,24 +63,26 @@ def main():
     # DONE: 4. Define classify_images() function to create the classifier
     # labels with the classifier function uisng in_arg.arch, comparing the
     # labels, and creating a dictionary of results (result_dic)
-    result_dic = classify_images(in_arg.dir, answers_dic, in_arg.arch)
-    check_creating_pet_image_labels(result_dic)
-    matches = sum(list(map(lambda l: l[2], result_dic.values())))
-    print("Matches: " + str(matches))
+    results_dic = classify_images(in_arg.dir, answers_dic, in_arg.arch)
+    check_creating_pet_image_labels(results_dic)
     print()
     print()
 
-    # # TODO: 5. Define adjust_results4_isadog() function to adjust the results
-    # # dictionary(result_dic) to determine if classifier correctly classified
-    # # images as 'a dog' or 'not a dog'. This demonstrates if the model can
-    # # correctly classify dog images as dogs (regardless of breed)
-    # adjust_results4_isadog()
-    #
-    # # TODO: 6. Define calculates_results_stats() function to calculate
-    # # results of run and puts statistics in a results statistics
-    # # dictionary (results_stats_dic)
-    # results_stats_dic = calculates_results_stats()
-    #
+    # DONE: 5. Define adjust_results4_isadog() function to adjust the results
+    # dictionary(result_dic) to determine if classifier correctly classified
+    # images as 'a dog' or 'not a dog'. This demonstrates if the model can
+    # correctly classify dog images as dogs (regardless of breed)
+    adjust_results4_isadog(results_dic, in_arg.dogfile)
+    check_classifying_labels_as_dogs(results_dic)
+    print()
+    print()
+
+    # DONE: 6. Define calculates_results_stats() function to calculate
+    # results of run and puts statistics in a results statistics
+    # dictionary (results_stats_dic)
+    results_stats_dic = calculates_results_stats(results_dic)
+    check_calculating_results(results_dic, results_stats_dic)
+
     # # TODO: 7. Define print_results() function to print summary results,
     # # incorrect classifications of dogs and breeds if requested.
     # print_results()
@@ -211,7 +213,7 @@ def classifier_label_matches_pet_image_label(classifier_label, pet_label):
     return 1 if match else 0
 
 
-def adjust_results4_isadog():
+def adjust_results4_isadog(results_dic, dogsfile):
     """
     Adjusts the results dictionary to determine if classifier correctly 
     classified images 'as a dog' or 'not a dog' especially when not a match. 
@@ -238,11 +240,24 @@ def adjust_results4_isadog():
                 text file's name)
     Returns:
            None - results_dic is mutable data type so no return needed.
-    """           
-    pass
+    """
+    dognames_dic = dict()
+    with open(dogsfile, "r") as file:
+        for line in file:
+            dognames_dic[line.strip()] = 1
+
+    for key in results_dic:
+        pet_image_label = results_dic[key][0]
+        classifier_label = results_dic[key][1]
+
+        is_dog = lambda dogname: 1 if dogname in dognames_dic else 0
+        pet_image_label_is_dog = is_dog(pet_image_label)
+        classifier_label_is_dog = is_dog(classifier_label)
+
+        results_dic[key].extend([pet_image_label_is_dog, classifier_label_is_dog])
 
 
-def calculates_results_stats():
+def calculates_results_stats(results_dic):
     """
     Calculates statistics of the results of the run using classifier's model 
     architecture on classifying images. Then puts the results statistics in a 
@@ -266,7 +281,48 @@ def calculates_results_stats():
                      name (starting with 'pct' for percentage or 'n' for count)
                      and the value is the statistic's value 
     """
-    pass
+    results_stats = {
+        "n_images": 0,              # Z
+        "n_correct_dogs": 0,        # A
+        "n_dogs_img": 0,          # B
+        "n_correct_notdogs": 0,    # C
+        "n_notdogs_img": 0,      # D
+        "n_correct_breeds": 0,      # E
+        "n_match": 0        # Y
+    }
+
+    for key in results_dic:
+        results_stats["n_images"] += 1
+
+        if results_dic[key][3] == 1 and results_dic[key][4] == 1:
+            results_stats["n_correct_dogs"] += 1
+
+        if results_dic[key][3] == 1:
+            results_stats["n_dogs_img"] += 1
+
+        if results_dic[key][3] == 0 and results_dic[key][4] == 0:
+            results_stats["n_correct_notdogs"] += 1
+
+        if results_dic[key][3] == 0:
+            results_stats["n_notdogs_img"] += 1
+
+        if results_dic[key][3] == 1 and results_dic[key][2] == 1:
+            results_stats["n_correct_breeds"] += 1
+
+        if results_dic[key][2] == 1:
+            results_stats["n_match"] += 1
+
+    results_stats["pct_correct_dogs"]\
+        = results_stats["n_correct_dogs"] / results_stats["n_dogs_img"] * 100.0
+    results_stats["pct_correct_notdogs"]\
+        = results_stats["n_correct_notdogs"] / results_stats["n_notdogs_img"] * 100.0 \
+        if results_stats["n_notdogs_img"] > 0 else 0
+    results_stats["pct_correct_breed"]\
+        = results_stats["n_correct_breeds"] / results_stats["n_dogs_img"] * 100.0
+    results_stats["pct_match"]\
+        = results_stats["n_match"] / results_stats["n_images"] * 100.0
+
+    return results_stats
 
 
 def print_results():
@@ -297,11 +353,10 @@ def print_results():
                               False doesn't print anything(default) (bool) 
     Returns:
            None - simply printing results.
-    """    
+    """
     pass
 
-                
-                
+
 # Call to main function to run the program
 if __name__ == "__main__":
     main()
