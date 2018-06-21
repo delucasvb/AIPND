@@ -1,0 +1,13 @@
+Stats for model: vgg
+n_images                      => 40
+n_dogs_img                    => 30
+n_notdogs_img                 => 10
+pct_correct_dogs                        => 100.000000
+pct_correct_notdogs                     => 100.000000
+pct_correct_breed                       => 93.333333
+pct_match                               => 87.500000
+Breed mistakes:
+Pet image label: beagle                                   Classification: walker hound, walker foxhound
+Pet image label: great pyrenees                           Classification: kuvasz
+
+** Total Elapsed Runtime: 0:0:39

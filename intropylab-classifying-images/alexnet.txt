@@ -1,0 +1,17 @@
+Stats for model: alexnet
+n_images                      => 40
+n_dogs_img                    => 30
+n_notdogs_img                 => 10
+pct_correct_dogs                        => 100.000000
+pct_correct_notdogs                     => 100.000000
+pct_correct_breed                       => 80.000000
+pct_match                               => 75.000000
+Breed mistakes:
+Pet image label: beagle                                   Classification: walker hound, walker foxhound
+Pet image label: boston terrier                           Classification: basenji
+Pet image label: beagle                                   Classification: english foxhound
+Pet image label: golden retriever                         Classification: tibetan mastiff
+Pet image label: great pyrenees                           Classification: kuvasz
+Pet image label: golden retriever                         Classification: afghan hound, afghan
+
+** Total Elapsed Runtime: 0:0:5
